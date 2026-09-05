@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Performances</title>
+<style>
+  :root {
+    --ink: #1c1b1f;
+    --paper: #f2ede4;
+    --panel: #ffffff;
+    --line: #d8d0c0;
+    --accent: #c1440e;
+    --accent-ink: #7a2c08;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: radial-gradient(circle at 1px 1px, rgba(28,27,31,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  header {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 64px 24px 32px;
+    border-bottom: 3px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--accent-ink);
+    margin: 0 0 6px;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.02;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  header p.sub {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    color: #4a463f;
+    max-width: 55ch;
+    margin: 0;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 28px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover, .card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 6px 6px 0 var(--ink);
+    outline: none;
+  }
+  .thumb-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+  }
+  .thumb-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .play svg {
+    width: 46px;
+    height: 46px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  }
+  .meta {
+    padding: 14px 16px 18px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .meta .title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .meta .details {
+    font-size: 13px;
+    color: #6b6558;
+    margin: 0;
+  }
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    color: #8a8474;
+  }
+  .empty {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #6b6558;
+    padding: 40px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Family &amp; friends only — share the link, don't post it</p>
+  <h1>Kieran on stage</h1>
+  <p class="sub">Every set, recorded and gathered in one place. Click any thumbnail to watch on YouTube.</p>
+</header>
+
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">No performances added yet.</div>
+</main>
+
+<footer>
+  Thumbnails and video links come directly from YouTube.
+</footer>
+
+<script>
+  const videos = [
+  {
+    "id": "RutE_6EMYr4",
+    "title": "Renegade",
+    "details": "MAGWest"
+  },
+  {
+    "id": "ve5HRsgnjuc",
+    "title": "25 or 6 to 4",
+    "details": "MAGWest"
+  },
+  {
+    "id": "s7EySQuzH9Y",
+    "title": "Cult of Personality",
+    "details": "MAGWest"
+  },
+  {
+    "id": "lg9Q4iG2_9s",
+    "title": "Don't Stop Believin'",
+    "details": "MAGWest"
+  },
+  {
+    "id": "GTjBNQh8RQQ",
+    "title": "Tom Sawyer",
+    "details": "MAGWest"
+  },
+  {
+    "id": "8UhMW3Vpiwk",
+    "title": "Burnin' For You",
+    "details": "MAGWest"
+  }
+];
+
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty");
+
+  if (videos.length === 0) {
+    empty.style.display = "block";
+  }
+
+  videos.forEach(v => {
+    const a = document.createElement("a");
+    a.className = "card";
+    a.href = `https://www.youtube.com/watch?v=${v.id}`;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    a.innerHTML = `
+      <div class="thumb-wrap">
+        <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" loading="lazy">
+        <div class="play">
+          <svg viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="rgba(0,0,0,0.55)"/><path d="M 45,24 27,14 27,34" fill="#f2ede4"/></svg>
+        </div>
+      </div>
+      <div class="meta">
+        <p class="title">${v.title}</p>
+        ${v.details ? `<p class="details">${v.details}</p>` : ""}
+      </div>
+    `;
+    grid.appendChild(a);
+  });
+</script>
+
+</body>
+</html>
