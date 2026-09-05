@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Performance Page</title>
+<style>
+  :root {
+    --ink: #1c1b1f;
+    --paper: #f2ede4;
+    --panel: #ffffff;
+    --line: #d8d0c0;
+    --accent: #c1440e;
+    --accent-ink: #7a2c08;
+    --good: #2f6d3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  header {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 24px;
+    border-bottom: 3px solid var(--ink);
+  }
+  header h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    margin: 0 0 8px;
+  }
+  header p { margin: 0; color: #4a463f; max-width: 60ch; line-height: 1.5; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 100px;
+  }
+
+  section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  section h2 {
+    font-size: 15px;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    margin-top: 14px;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input[type=text] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  input[type=text]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .hint { font-size: 12px; color: #8a8474; margin-top: 4px; }
+
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  button:hover { background: #333; }
+  button.secondary {
+    background: var(--panel);
+    color: var(--ink);
+  }
+  button.secondary:hover { background: var(--paper); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .add-row { margin-top: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  #error {
+    color: #a1260d;
+    font-size: 13px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    border: 1px solid var(--line);
+    padding: 10px;
+  }
+  .item img {
+    width: 100px;
+    height: 56px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #111;
+  }
+  .item .info { flex: 1; min-width: 0; }
+  .item .info .c {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-ink);
+    margin: 0 0 3px;
+  }
+  .item .info .t { font-weight: 600; font-size: 14px; margin: 0 0 2px; }
+  .item .info .d { font-size: 12px; color: #6b6558; margin: 0; }
+  .item .actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .item .move {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 14px;
+    padding: 8px 10px;
+    line-height: 1;
+  }
+  .item .move:hover:not(:disabled) { background: var(--paper); }
+  .item .remove {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--accent-ink);
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  .item .remove:hover { background: #fbe9e2; }
+
+  .empty-list { color: #8a8474; font-size: 14px; padding: 12px 0; }
+
+  .download-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .count {
+    font-size: 13px;
+    color: #4a463f;
+  }
+
+  .status {
+    font-size: 13px;
+    color: var(--good);
+    display: none;
+  }
+
+  .load-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  input[type=file] { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Build Your Performance Page</h1>
+  <p>Add each YouTube video below with a title. When you're done, download the finished website file and drag it onto Netlify to update the live page — no code required.</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>Step 1 — Already have a page? Load it to keep your existing videos</h2>
+    <div class="load-row">
+      <input type="file" id="loadFile" accept=".html">
+      <span class="hint">Optional — pick your current index.html to bring in videos you already added.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Step 2 — Add a performance</h2>
+    <label for="url">YouTube link</label>
+    <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/...">
+    <div class="hint">Paste the full link from YouTube — any format works.</div>
+
+    <label for="concert">Concert / Event</label>
+    <input type="text" id="concert" placeholder="e.g. Spring Showcase — March 2026">
+    <div class="hint">Videos with the same Concert/Event will be grouped under one heading, in this exact wording.</div>
+
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="e.g. Song name or 'Full Set'">
+
+    <label for="details">Details (optional)</label>
+    <input type="text" id="details" placeholder="e.g. Venue name">
+
+    <div class="add-row">
+      <button id="addBtn">Add performance</button>
+      <span id="error"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your performances</h2>
+    <div class="list" id="list"></div>
+    <div class="empty-list" id="emptyMsg">No performances added yet.</div>
+  </section>
+
+  <section>
+    <h2>Step 3 — Download your website</h2>
+    <div class="download-row">
+      <button id="downloadBtn" class="secondary">Download index.html</button>
+      <span class="count" id="count"></span>
+      <span class="status" id="status">Downloaded! Drag this file onto Netlify to update your site.</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  let videos = [];
+
+  const listEl = document.getElementById("list");
+  const emptyMsg = document.getElementById("emptyMsg");
+  const errorEl = document.getElementById("error");
+  const countEl = document.getElementById("count");
+  const statusEl = document.getElementById("status");
+
+  function extractId(input) {
+    input = input.trim();
+    // already just an ID
+    if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+      /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+      /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    ];
+    for (const p of patterns) {
+      const m = input.match(p);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  function render() {
+    listEl.innerHTML = "";
+    if (videos.length === 0) {
+      emptyMsg.style.display = "block";
+    } else {
+      emptyMsg.style.display = "none";
+      videos.forEach((v, i) => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="">
+          <div class="info">
+            <p class="c">${escapeHtml(v.concert || "No concert set")}</p>
+            <p class="t">${escapeHtml(v.title)}</p>
+            <p class="d">${escapeHtml(v.details || "")}</p>
+          </div>
+          <div class="actions">
+            <button class="move" data-action="up" data-i="${i}" ${i === 0 ? "disabled" : ""} title="Move up">&#8593;</button>
+            <button class="move" data-action="down" data-i="${i}" ${i === videos.length - 1 ? "disabled" : ""} title="Move down">&#8595;</button>
+            <button class="remove" data-i="${i}">Remove</button>
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
+    }
+    countEl.textContent = videos.length === 1 ? "1 performance" : `${videos.length} performances`;
+    statusEl.style.display = "none";
+  }
+
+  function escapeHtml(s) {
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  document.getElementById("addBtn").addEventListener("click", () => {
+    errorEl.style.display = "none";
+    const urlInput = document.getElementById("url");
+    const concertInput = document.getElementById("concert");
+    const titleInput = document.getElementById("title");
+    const detailsInput = document.getElementById("details");
+
+    const id = extractId(urlInput.value);
+    const concert = concertInput.value.trim();
+    const title = titleInput.value.trim();
+
+    if (!id) {
+      errorEl.textContent = "Couldn't find a video ID in that link — check it's a full YouTube URL.";
+      errorEl.style.display = "inline";
+      return;
+    }
+    if (!concert) {
+      errorEl.textContent = "Please add a Concert / Event name (used to group videos).";
+      errorEl.style.display = "inline";
+      return;
+    }
+    if (!title) {
+      errorEl.textContent = "Please add a title.";
+      errorEl.style.display = "inline";
+      return;
+    }
+
+    videos.push({ id, concert, title, details: detailsInput.value.trim() });
+    urlInput.value = "";
+    titleInput.value = "";
+    detailsInput.value = "";
+    urlInput.focus();
+    render();
+  });
+
+  listEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const i = parseInt(btn.dataset.i, 10);
+
+    if (btn.classList.contains("remove")) {
+      videos.splice(i, 1);
+      render();
+    } else if (btn.dataset.action === "up" && i > 0) {
+      [videos[i - 1], videos[i]] = [videos[i], videos[i - 1]];
+      render();
+    } else if (btn.dataset.action === "down" && i < videos.length - 1) {
+      [videos[i + 1], videos[i]] = [videos[i], videos[i + 1]];
+      render();
+    }
+  });
+
+  document.getElementById("loadFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result;
+      const match = text.match(/const\s+videos\s*=\s*(\[[\s\S]*?\]);/);
+      if (match) {
+        try {
+          // Safely parse the array literal without using eval on the whole file
+          const arr = Function(`"use strict"; return (${match[1]});`)();
+          if (Array.isArray(arr)) {
+            videos = arr.map(v => ({ id: v.id, concert: v.concert || "", title: v.title, details: v.details || "" }));
+            render();
+            errorEl.style.display = "none";
+          }
+        } catch (err) {
+          errorEl.textContent = "Couldn't read that file's video list. You can still add performances manually below.";
+          errorEl.style.display = "inline";
+        }
+      } else {
+        errorEl.textContent = "Couldn't find a video list in that file. You can still add performances manually below.";
+        errorEl.style.display = "inline";
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    const html = buildSiteHtml(videos);
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    statusEl.style.display = "inline";
+  });
+
+  function buildSiteHtml(videos) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Performances</title>
+<style>
+  :root {
+    --ink: #1c1b1f;
+    --paper: #f2ede4;
+    --panel: #ffffff;
+    --line: #d8d0c0;
+    --accent: #c1440e;
+    --accent-ink: #7a2c08;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: radial-gradient(circle at 1px 1px, rgba(28,27,31,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  header {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 64px 24px 32px;
+    border-bottom: 3px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--accent-ink);
+    margin: 0 0 6px;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.02;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  header p.sub {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    color: #4a463f;
+    max-width: 55ch;
+    margin: 0;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+  .concert-head {
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    font-weight: 700;
+    margin: 48px 0 18px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .concert-head:first-of-type { margin-top: 0; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 28px;
+    margin-bottom: 8px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover, .card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 6px 6px 0 var(--ink);
+    outline: none;
+  }
+  .thumb-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+  }
+  .thumb-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .play svg {
+    width: 46px;
+    height: 46px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  }
+  .meta {
+    padding: 14px 16px 18px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .meta .title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .meta .details {
+    font-size: 13px;
+    color: #6b6558;
+    margin: 0;
+  }
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    color: #8a8474;
+  }
+  .empty {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #6b6558;
+    padding: 40px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Family &amp; friends only — share the link, don't post it</p>
+  <h1>On Stage</h1>
+  <p class="sub">Every set, recorded and gathered in one place. Click any thumbnail to watch on YouTube.</p>
+</header>
+
+<main id="main">
+  <div class="empty" id="empty" style="display:none;">No performances added yet.</div>
+</main>
+
+<footer>
+  Thumbnails and video links come directly from YouTube.
+</footer>
+
+<script>
+  const videos = ${JSON.stringify(videos, null, 2)};
+
+  const main = document.getElementById("main");
+  const empty = document.getElementById("empty");
+
+  if (videos.length === 0) {
+    empty.style.display = "block";
+  }
+
+  let currentConcert = null;
+  let currentGrid = null;
+
+  videos.forEach(v => {
+    if (v.concert !== currentConcert) {
+      currentConcert = v.concert;
+      if (currentConcert) {
+        const heading = document.createElement("h2");
+        heading.className = "concert-head";
+        heading.textContent = currentConcert;
+        main.appendChild(heading);
+      }
+      currentGrid = document.createElement("div");
+      currentGrid.className = "grid";
+      main.appendChild(currentGrid);
+    }
+
+    const a = document.createElement("a");
+    a.className = "card";
+    a.href = "https://www.youtube.com/watch?v=" + v.id;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    const thumbWrap = document.createElement("div");
+    thumbWrap.className = "thumb-wrap";
+
+    const img = document.createElement("img");
+    img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
+    img.alt = v.title;
+    img.loading = "lazy";
+    thumbWrap.appendChild(img);
+
+    const play = document.createElement("div");
+    play.className = "play";
+    play.innerHTML = '<svg viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="rgba(0,0,0,0.55)"></path><path d="M 45,24 27,14 27,34" fill="#f2ede4"></path></svg>';
+    thumbWrap.appendChild(play);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const titleEl = document.createElement("p");
+    titleEl.className = "title";
+    titleEl.textContent = v.title;
+    meta.appendChild(titleEl);
+
+    if (v.details) {
+      const detailsEl = document.createElement("p");
+      detailsEl.className = "details";
+      detailsEl.textContent = v.details;
+      meta.appendChild(detailsEl);
+    }
+
+    a.appendChild(thumbWrap);
+    a.appendChild(meta);
+    currentGrid.appendChild(a);
+  });
+<\/script>
+
+</body>
+</html>`;
+  }
+
+  render();
+</script>
+
+</body>
+</html>
