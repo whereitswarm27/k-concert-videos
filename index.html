@@ -53,6 +53,22 @@
     margin: 0 auto;
     padding: 40px 24px 100px;
   }
+  .concert-head {
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .concert-head + .grid { margin-bottom: 8px; }
+  .concert-name {
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    margin: 0 0 4px;
+  }
+  .concert-meta {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    color: var(--accent-ink);
+    margin: 0;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -134,8 +150,7 @@
   <p class="sub">Click any thumbnail to watch on YouTube.</p>
 </header>
 
-<main>
-  <div class="grid" id="grid"></div>
+<main id="main">
   <div class="empty" id="empty" style="display:none;">No performances added yet.</div>
 </main>
 
@@ -147,44 +162,76 @@
   const videos = [
   {
     "id": "RutE_6EMYr4",
+    "concert": "House Band: MAGWest",
+    "date": "Saturday, August 15, 2026",
+    "venue": "Santa Clara",
     "title": "Renegade",
-    "details": "MAGWest"
+    "details": ""
   },
   {
     "id": "ve5HRsgnjuc",
+    "concert": "House Band: MAGWest",
+    "date": "Saturday, August 15, 2026",
+    "venue": "Santa Clara",
     "title": "25 or 6 to 4",
-    "details": "MAGWest"
+    "details": ""
   },
   {
     "id": "s7EySQuzH9Y",
+    "concert": "House Band: MAGWest",
+    "date": "Saturday, August 15, 2026",
+    "venue": "Santa Clara",
     "title": "Cult of Personality",
-    "details": "MAGWest"
+    "details": ""
   },
   {
     "id": "lg9Q4iG2_9s",
+    "concert": "House Band: MAGWest",
+    "date": "Saturday, August 15, 2026",
+    "venue": "Santa Clara",
     "title": "Don't Stop Believin'",
-    "details": "MAGWest"
+    "details": ""
   },
   {
     "id": "GTjBNQh8RQQ",
+    "concert": "House Band: MAGWest",
+    "date": "Saturday, August 15, 2026",
+    "venue": "Santa Clara",
     "title": "Tom Sawyer",
-    "details": "MAGWest"
+    "details": ""
   },
   {
     "id": "8UhMW3Vpiwk",
+    "concert": "House Band: MAGWest",
+    "date": "Saturday, August 15, 2026",
+    "venue": "Santa Clara",
     "title": "Burnin' For You",
-    "details": "MAGWest"
+    "details": ""
   }
 ];
 
-  const grid = document.getElementById("grid");
+  const main = document.getElementById("main");
   const empty = document.getElementById("empty");
 
   if (videos.length === 0) {
     empty.style.display = "block";
   }
 
+  let currentConcert = null;
+  let currentGrid = null;
+
   videos.forEach(v => {
+    if (v.concert !== currentConcert) {
+      currentConcert = v.concert;
+      const heading = document.createElement("header");
+      heading.className = "concert-head";
+      heading.innerHTML = `<h2 class="concert-name">${v.concert || "Concert"}</h2><p class="concert-meta">${v.date || "Date to be added"} · ${v.venue || "Venue to be added"}</p>`;
+      main.appendChild(heading);
+      currentGrid = document.createElement("div");
+      currentGrid.className = "grid";
+      main.appendChild(currentGrid);
+    }
+
     const a = document.createElement("a");
     a.className = "card";
     a.href = `https://www.youtube.com/watch?v=${v.id}`;
@@ -203,7 +250,7 @@
         ${v.details ? `<p class="details">${v.details}</p>` : ""}
       </div>
     `;
-    grid.appendChild(a);
+    currentGrid.appendChild(a);
   });
 </script>
 

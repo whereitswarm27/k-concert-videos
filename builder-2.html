@@ -218,8 +218,15 @@
     <input type="text" id="concert" placeholder="e.g. Spring Showcase — March 2026">
     <div class="hint">Videos with the same Concert/Event will be grouped under one heading, in this exact wording.</div>
 
+    <label for="date">Date</label>
+    <input type="text" id="date" placeholder="e.g. March 14, 2026">
+
+    <label for="venue">Venue</label>
+    <input type="text" id="venue" placeholder="e.g. The Fillmore">
+
     <label for="title">Title</label>
     <input type="text" id="title" placeholder="e.g. Song name or 'Full Set'">
+    <div class="hint" id="titleStatus" aria-live="polite">The title will be filled in from YouTube.</div>
 
     <label for="details">Details (optional)</label>
     <input type="text" id="details" placeholder="e.g. Venue name">
@@ -255,6 +262,7 @@
   const errorEl = document.getElementById("error");
   const countEl = document.getElementById("count");
   const statusEl = document.getElementById("status");
+  const titleStatusEl = document.getElementById("titleStatus");
 
   function extractId(input) {
     input = input.trim();
@@ -286,6 +294,7 @@
           <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="">
           <div class="info">
             <p class="c">${escapeHtml(v.concert || "No concert set")}</p>
+            <p class="d">${escapeHtml([v.date, v.venue].filter(Boolean).join(" · "))}</p>
             <p class="t">${escapeHtml(v.title)}</p>
             <p class="d">${escapeHtml(v.details || "")}</p>
           </div>
@@ -308,15 +317,44 @@
     return d.innerHTML;
   }
 
-  document.getElementById("addBtn").addEventListener("click", () => {
+  async function populateTitle() {
+    const urlInput = document.getElementById("url");
+    const titleInput = document.getElementById("title");
+    const id = extractId(urlInput.value);
+
+    if (!id || titleInput.value.trim()) return;
+
+    titleStatusEl.textContent = "Getting title from YouTube...";
+    try {
+      const videoUrl = `https://www.youtube.com/watch?v=${id}`;
+      const response = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`);
+      if (!response.ok) throw new Error("Title lookup failed");
+      const data = await response.json();
+      if (!titleInput.value.trim() && data.title) {
+        titleInput.value = data.title;
+        titleStatusEl.textContent = "Title loaded from YouTube. You can edit it if needed.";
+      }
+    } catch (error) {
+      titleStatusEl.textContent = "YouTube title lookup failed. Enter a title manually.";
+    }
+  }
+
+  document.getElementById("url").addEventListener("blur", populateTitle);
+
+  document.getElementById("addBtn").addEventListener("click", async () => {
     errorEl.style.display = "none";
     const urlInput = document.getElementById("url");
     const concertInput = document.getElementById("concert");
+    const dateInput = document.getElementById("date");
+    const venueInput = document.getElementById("venue");
     const titleInput = document.getElementById("title");
     const detailsInput = document.getElementById("details");
 
     const id = extractId(urlInput.value);
     const concert = concertInput.value.trim();
+    const date = dateInput.value.trim();
+    const venue = venueInput.value.trim();
+    await populateTitle();
     const title = titleInput.value.trim();
 
     if (!id) {
@@ -329,14 +367,21 @@
       errorEl.style.display = "inline";
       return;
     }
+    if (!date || !venue) {
+      errorEl.textContent = "Please add the concert date and venue.";
+      errorEl.style.display = "inline";
+      return;
+    }
     if (!title) {
       errorEl.textContent = "Please add a title.";
       errorEl.style.display = "inline";
       return;
     }
 
-    videos.push({ id, concert, title, details: detailsInput.value.trim() });
+    videos.push({ id, concert, date, venue, title, details: detailsInput.value.trim() });
     urlInput.value = "";
+    dateInput.value = "";
+    venueInput.value = "";
     titleInput.value = "";
     detailsInput.value = "";
     urlInput.focus();
@@ -372,7 +417,7 @@
           // Safely parse the array literal without using eval on the whole file
           const arr = Function(`"use strict"; return (${match[1]});`)();
           if (Array.isArray(arr)) {
-            videos = arr.map(v => ({ id: v.id, concert: v.concert || "", title: v.title, details: v.details || "" }));
+            videos = arr.map(v => ({ id: v.id, concert: v.concert || "", date: v.date || "", venue: v.venue || "", title: v.title, details: v.details || "" }));
             render();
             errorEl.style.display = "none";
           }
@@ -466,6 +511,19 @@
     border-bottom: 2px solid var(--ink);
   }
   .concert-head:first-of-type { margin-top: 0; }
+  .concert-name {
+    display: block;
+    font-size: inherit;
+    margin: 0 0 4px;
+  }
+  .concert-meta {
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--accent-ink);
+    margin: 0;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -575,7 +633,14 @@
       if (currentConcert) {
         const heading = document.createElement("h2");
         heading.className = "concert-head";
-        heading.textContent = currentConcert;
+        const name = document.createElement("span");
+        name.className = "concert-name";
+        name.textContent = currentConcert;
+        const meta = document.createElement("span");
+        meta.className = "concert-meta";
+        meta.textContent = (v.date || "Date to be added") + " · " + (v.venue || "Venue to be added");
+        heading.appendChild(name);
+        heading.appendChild(meta);
         main.appendChild(heading);
       }
       currentGrid = document.createElement("div");
