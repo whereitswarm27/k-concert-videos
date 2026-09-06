@@ -54,18 +54,23 @@
     padding: 40px 24px 100px;
   }
   .concert-head {
-    margin: 0 0 18px;
-    padding-bottom: 10px;
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    font-weight: 700;
+    margin: 48px 0 18px;
+    padding-bottom: 8px;
     border-bottom: 2px solid var(--ink);
   }
-  .concert-head + .grid { margin-bottom: 8px; }
+  .concert-head:first-of-type { margin-top: 0; }
   .concert-name {
-    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    display: block;
+    font-size: inherit;
     margin: 0 0 4px;
   }
   .concert-meta {
+    display: block;
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 13px;
+    font-weight: 400;
     color: var(--accent-ink);
     margin: 0;
   }
@@ -73,6 +78,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 28px;
+    margin-bottom: 8px;
   }
   .card {
     background: var(--panel);
@@ -145,9 +151,9 @@
 <body>
 
 <header>
-  <p class="eyebrow">For family and friends only.</p>
-  <h1>Kieran on stage</h1>
-  <p class="sub">Click any thumbnail to watch on YouTube.</p>
+  <p class="eyebrow">Family &amp; friends only — share the link, don't post it</p>
+  <h1>On Stage</h1>
+  <p class="sub">Every set, recorded and gathered in one place. Click any thumbnail to watch on YouTube.</p>
 </header>
 
 <main id="main">
@@ -207,6 +213,38 @@
     "venue": "Santa Clara",
     "title": "Burnin' For You",
     "details": ""
+  },
+  {
+    "id": "Lh8ZKJegkSQ",
+    "concert": "Pop Punk Camp: Summer Concert",
+    "date": "June 26, 2026",
+    "venue": "Bogey's",
+    "title": "Misery Business (School of Rock San Jose, 6/26/26, Bogey's)",
+    "details": ""
+  },
+  {
+    "id": "iVOxFDneWro",
+    "concert": "Pop Punk Camp: Summer Concert",
+    "date": "June 26, 2026",
+    "venue": "Bogey's",
+    "title": "Still Waiting (School of Rock San Jose, 6/26/26, Bogey’s)",
+    "details": ""
+  },
+  {
+    "id": "899Ue1km6HA",
+    "concert": "Pop Punk Camp: Summer Concert",
+    "date": "June 26, 2026",
+    "venue": "Bogey's",
+    "title": "All Downhill From Here (School of Rock San Jose, 6/26/26, Bogey’s)",
+    "details": ""
+  },
+  {
+    "id": "YpMR44k5qCc",
+    "concert": "Pop Punk Camp: Summer Concert",
+    "date": "June 26, 2026",
+    "venue": "Bogey's",
+    "title": "Everything is Alright (San Jose School of Rock, 6/26/26, Bogey's)",
+    "details": ""
   }
 ];
 
@@ -223,10 +261,19 @@
   videos.forEach(v => {
     if (v.concert !== currentConcert) {
       currentConcert = v.concert;
-      const heading = document.createElement("header");
-      heading.className = "concert-head";
-      heading.innerHTML = `<h2 class="concert-name">${v.concert || "Concert"}</h2><p class="concert-meta">${v.date || "Date to be added"} · ${v.venue || "Venue to be added"}</p>`;
-      main.appendChild(heading);
+      if (currentConcert) {
+        const heading = document.createElement("h2");
+        heading.className = "concert-head";
+        const name = document.createElement("span");
+        name.className = "concert-name";
+        name.textContent = currentConcert;
+        const meta = document.createElement("span");
+        meta.className = "concert-meta";
+        meta.textContent = (v.date || "Date to be added") + " · " + (v.venue || "Venue to be added");
+        heading.appendChild(name);
+        heading.appendChild(meta);
+        main.appendChild(heading);
+      }
       currentGrid = document.createElement("div");
       currentGrid.className = "grid";
       main.appendChild(currentGrid);
@@ -234,22 +281,41 @@
 
     const a = document.createElement("a");
     a.className = "card";
-    a.href = `https://www.youtube.com/watch?v=${v.id}`;
+    a.href = "https://www.youtube.com/watch?v=" + v.id;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
 
-    a.innerHTML = `
-      <div class="thumb-wrap">
-        <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" loading="lazy">
-        <div class="play">
-          <svg viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="rgba(0,0,0,0.55)"/><path d="M 45,24 27,14 27,34" fill="#f2ede4"/></svg>
-        </div>
-      </div>
-      <div class="meta">
-        <p class="title">${v.title}</p>
-        ${v.details ? `<p class="details">${v.details}</p>` : ""}
-      </div>
-    `;
+    const thumbWrap = document.createElement("div");
+    thumbWrap.className = "thumb-wrap";
+
+    const img = document.createElement("img");
+    img.src = "https://img.youtube.com/vi/" + v.id + "/hqdefault.jpg";
+    img.alt = v.title;
+    img.loading = "lazy";
+    thumbWrap.appendChild(img);
+
+    const play = document.createElement("div");
+    play.className = "play";
+    play.innerHTML = '<svg viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="rgba(0,0,0,0.55)"></path><path d="M 45,24 27,14 27,34" fill="#f2ede4"></path></svg>';
+    thumbWrap.appendChild(play);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const titleEl = document.createElement("p");
+    titleEl.className = "title";
+    titleEl.textContent = v.title;
+    meta.appendChild(titleEl);
+
+    if (v.details) {
+      const detailsEl = document.createElement("p");
+      detailsEl.className = "details";
+      detailsEl.textContent = v.details;
+      meta.appendChild(detailsEl);
+    }
+
+    a.appendChild(thumbWrap);
+    a.appendChild(meta);
     currentGrid.appendChild(a);
   });
 </script>

@@ -107,6 +107,12 @@
     margin-top: 10px;
     display: none;
   }
+  #importError {
+    color: #a1260d;
+    font-size: 13px;
+    margin: 0;
+    display: none;
+  }
 
   .list {
     display: flex;
@@ -189,6 +195,13 @@
     flex-wrap: wrap;
   }
   input[type=file] { font-size: 13px; }
+
+  .import-status {
+    color: var(--good);
+    font-size: 13px;
+    margin: 12px 0 0;
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -209,7 +222,32 @@
   </section>
 
   <section>
-    <h2>Step 2 — Add a performance</h2>
+    <h2>Step 2 — Import a YouTube playlist</h2>
+    <label for="playlistUrl">Playlist link</label>
+    <input type="text" id="playlistUrl" placeholder="https://www.youtube.com/playlist?list=...">
+
+    <label for="apiKey">YouTube API key</label>
+    <input type="password" id="apiKey" placeholder="Paste your API key for this import only">
+    <div class="hint">The key is used only in this builder and is never added to the downloaded website.</div>
+
+    <label for="importConcert">Concert / Event</label>
+    <input type="text" id="importConcert" placeholder="e.g. House Band: Fall Concert">
+
+    <label for="importDate">Date</label>
+    <input type="text" id="importDate" placeholder="e.g. September 12, 2026">
+
+    <label for="importVenue">Venue</label>
+    <input type="text" id="importVenue" placeholder="e.g. The Fillmore">
+
+    <div class="add-row">
+      <button id="importBtn">Import playlist</button>
+      <span id="importError" class="error"></span>
+    </div>
+    <p id="importStatus" class="import-status" aria-live="polite"></p>
+  </section>
+
+  <section>
+    <h2>Step 3 — Add a performance</h2>
     <label for="url">YouTube link</label>
     <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/...">
     <div class="hint">Paste the full link from YouTube — any format works.</div>
@@ -244,7 +282,7 @@
   </section>
 
   <section>
-    <h2>Step 3 — Download your website</h2>
+    <h2>Step 4 — Download your website</h2>
     <div class="download-row">
       <button id="downloadBtn" class="secondary">Download index.html</button>
       <span class="count" id="count"></span>
@@ -279,6 +317,17 @@
       if (m) return m[1];
     }
     return null;
+  }
+
+  function extractPlaylistId(input) {
+    input = input.trim();
+    if (/^[a-zA-Z0-9_-]+$/.test(input)) return input;
+    try {
+      const url = new URL(input);
+      return url.searchParams.get("list");
+    } catch (error) {
+      return null;
+    }
   }
 
   function render() {
@@ -316,6 +365,80 @@
     d.textContent = s;
     return d.innerHTML;
   }
+
+  document.getElementById("importBtn").addEventListener("click", async () => {
+    const playlistId = extractPlaylistId(document.getElementById("playlistUrl").value);
+    const apiKey = document.getElementById("apiKey").value.trim();
+    const concert = document.getElementById("importConcert").value.trim();
+    const date = document.getElementById("importDate").value.trim();
+    const venue = document.getElementById("importVenue").value.trim();
+    const importError = document.getElementById("importError");
+    const importStatus = document.getElementById("importStatus");
+
+    importError.style.display = "none";
+    importStatus.style.display = "none";
+
+    if (!playlistId || !apiKey) {
+      importError.textContent = "Please provide both a playlist link and API key.";
+      importError.style.display = "inline";
+      return;
+    }
+    if (!concert || !date || !venue) {
+      importError.textContent = "Please provide the concert name, date, and venue.";
+      importError.style.display = "inline";
+      return;
+    }
+
+    const existingIds = new Set(videos.map(v => v.id));
+    const imported = [];
+    let pageToken = "";
+
+    try {
+      do {
+        const params = new URLSearchParams({
+          part: "snippet",
+          maxResults: "50",
+          playlistId,
+          key: apiKey
+        });
+        if (pageToken) params.set("pageToken", pageToken);
+
+        importStatus.textContent = "Loading playlist videos...";
+        importStatus.style.display = "block";
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || "Playlist request failed.");
+
+        data.items.forEach(item => {
+          const id = item.snippet?.resourceId?.videoId;
+          if (id && !existingIds.has(id)) {
+            existingIds.add(id);
+            imported.push({
+              id,
+              concert,
+              date,
+              venue,
+              title: item.snippet.title,
+              details: ""
+            });
+          }
+        });
+        pageToken = data.nextPageToken || "";
+      } while (pageToken);
+
+      videos.push(...imported);
+      render();
+      importStatus.textContent = imported.length === 1
+        ? "Imported 1 video."
+        : `Imported ${imported.length} videos.`;
+      importStatus.style.display = "block";
+      document.getElementById("apiKey").value = "";
+    } catch (error) {
+      importStatus.style.display = "none";
+      importError.textContent = error.message || "Could not import that playlist.";
+      importError.style.display = "inline";
+    }
+  });
 
   async function populateTitle() {
     const urlInput = document.getElementById("url");
