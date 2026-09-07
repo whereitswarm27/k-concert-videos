@@ -629,6 +629,58 @@
     margin: 0 auto;
     padding: 40px 24px 100px;
   }
+  .concert-nav {
+    position: fixed;
+    top: 160px;
+    left: max(24px, calc(50% - 610px));
+    width: 180px;
+    padding: 18px 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    z-index: 2;
+  }
+  .concert-nav p {
+    margin: 0 0 10px;
+    color: var(--accent-ink);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .concert-nav a {
+    display: block;
+    padding: 7px 0;
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.25;
+    text-decoration: none;
+    border-top: 1px solid var(--line);
+  }
+  .concert-nav a:hover,
+  .concert-nav a:focus-visible {
+    color: var(--accent-ink);
+    outline: none;
+  }
+  @media (max-width: 1200px) {
+    .concert-nav {
+      position: static;
+      width: auto;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      border-left: 0;
+      border-right: 0;
+    }
+    .concert-nav nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 18px;
+    }
+    .concert-nav a {
+      border-top: 0;
+    }
+  }
   .concert-head {
     font-size: clamp(1.3rem, 3vw, 1.7rem);
     font-weight: 700;
@@ -731,6 +783,11 @@
 ${siteHeader}
 </header>
 
+<aside class="concert-nav" id="concert-nav" aria-label="Concerts">
+  <p>Concerts</p>
+  <nav id="concert-links"></nav>
+</aside>
+
 <main id="main">
   <div class="empty" id="empty" style="display:none;">No performances added yet.</div>
 </main>
@@ -744,6 +801,7 @@ ${siteHeader}
 
   const main = document.getElementById("main");
   const empty = document.getElementById("empty");
+  const concertLinks = document.getElementById("concert-links");
 
   if (videos.length === 0) {
     empty.style.display = "block";
@@ -752,12 +810,20 @@ ${siteHeader}
   let currentConcert = null;
   let currentGrid = null;
 
+  let concertNumber = 0;
+
   videos.forEach(v => {
     if (v.concert !== currentConcert) {
       currentConcert = v.concert;
       if (currentConcert) {
         const heading = document.createElement("h2");
         heading.className = "concert-head";
+        heading.id = "concert-" + concertNumber;
+        const link = document.createElement("a");
+        link.href = "#" + heading.id;
+        link.textContent = currentConcert;
+        concertLinks.appendChild(link);
+        concertNumber += 1;
         const name = document.createElement("span");
         name.className = "concert-name";
         name.textContent = currentConcert;
