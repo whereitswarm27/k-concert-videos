@@ -540,7 +540,7 @@
           // Safely parse the array literal without using eval on the whole file
           const arr = Function(`"use strict"; return (${match[1]});`)();
           if (Array.isArray(arr)) {
-            videos = arr.map(v => ({ id: v.id, concert: v.concert || "", date: v.date || "", venue: v.venue || "", title: v.title, details: v.details || "" }));
+            videos = arr.map(v => ({ id: v.id, concert: v.concert || "", date: v.date || "", venue: v.venue || "", playlist: v.playlist || "", title: v.title, details: v.details || "" }));
             render();
             errorEl.style.display = "none";
           }
@@ -576,7 +576,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K concert videos</title>
+<title>KV concert videos</title>
 <style>
   :root {
     --ink: #1c1b1f;
@@ -660,7 +660,6 @@
     border-left-color: var(--ink);
   }
   @media (min-width: 901px) {
-    header,
     main,
     footer {
       margin-left: max(240px, calc(50% - 300px));
@@ -680,6 +679,7 @@
     .concert-nav nav {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 0 18px;
     }
     .concert-nav a {
@@ -687,6 +687,7 @@
       border-left: 0;
       margin-left: 0;
       padding: 5px 0;
+      text-align: center;
     }
     .concert-nav a.active {
       border-left: 0;
@@ -712,6 +713,10 @@
     font-weight: 400;
     color: var(--accent-ink);
     margin: 0;
+  }
+  .concert-meta a {
+    color: inherit;
+    text-decoration: underline;
   }
   .grid {
     display: grid;
@@ -792,7 +797,7 @@
 
 <header>
   <p class="eyebrow">Family &amp; friends only — share the link, don't post it</p>
-  <h1>On Stage</h1>
+  <h1>KV concert videos</h1>
 </header>
 
 <main id="main">
@@ -847,6 +852,14 @@
         const meta = document.createElement("span");
         meta.className = "concert-meta";
         meta.textContent = (v.date || "Date to be added") + " · " + (v.venue || "Venue to be added");
+        if (v.playlist) {
+          const playlistLink = document.createElement("a");
+          playlistLink.href = v.playlist;
+          playlistLink.textContent = " (Playlist)";
+          playlistLink.target = "_blank";
+          playlistLink.rel = "noopener noreferrer";
+          meta.appendChild(playlistLink);
+        }
         heading.appendChild(name);
         heading.appendChild(meta);
         main.appendChild(heading);

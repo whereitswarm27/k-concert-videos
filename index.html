@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K concert videos</title>
+<title>KV concert videos</title>
 <style>
   :root {
     --ink: #1c1b1f;
@@ -88,7 +88,6 @@
     border-left-color: var(--ink);
   }
   @media (min-width: 901px) {
-    header,
     main,
     footer {
       margin-left: max(240px, calc(50% - 300px));
@@ -108,6 +107,7 @@
     .concert-nav nav {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 0 18px;
     }
     .concert-nav a {
@@ -115,6 +115,7 @@
       border-left: 0;
       margin-left: 0;
       padding: 5px 0;
+      text-align: center;
     }
     .concert-nav a.active {
       border-left: 0;
@@ -140,6 +141,10 @@
     font-weight: 400;
     color: var(--accent-ink);
     margin: 0;
+  }
+  .concert-meta a {
+    color: inherit;
+    text-decoration: underline;
   }
   .grid {
     display: grid;
@@ -224,7 +229,7 @@
 
 
   <p class="eyebrow">Family and friends only.</p>
-  <h1>K concert videos</h1>
+  <h1>KV concert videos</h1>
 
 
 
@@ -251,6 +256,7 @@
     "concert": "House Band: MAGWest",
     "date": "August 15, 2026",
     "venue": "Santa Clara",
+    "playlist": "https://www.youtube.com/playlist?list=PLR6qmz_BEI6Q",
     "title": "Renegade",
     "details": ""
   },
@@ -299,6 +305,7 @@
     "concert": "Pop Punk Camp",
     "date": "June 26, 2026",
     "venue": "Bogey's",
+    "playlist": "https://www.youtube.com/playlist?list=PLMHGd-XfHJdk",
     "title": "Misery Business",
     "details": ""
   },
@@ -331,6 +338,7 @@
     "concert": "Big 4",
     "date": "May 17, 2026",
     "venue": "Okayama Room",
+    "playlist": "https://www.youtube.com/playlist?list=PLIuZ18p2ppSHZpciqRhce5v-4v_Q8mizl",
     "title": "Metal Thrashing Mad",
     "details": ""
   },
@@ -371,6 +379,7 @@
     "concert": "Radiohead",
     "date": "January 24, 2026",
     "venue": "Scottish Rite",
+    "playlist": "https://www.youtube.com/playlist?list=PLIuZ18p2ppSGzPe79_yjqpLCTqL8m_F7V",
     "title": "Lucky",
     "details": ""
   },
@@ -411,6 +420,7 @@
     "concert": "Drumageddon",
     "date": "September 28, 2025",
     "venue": "Felton Music Hall",
+    "playlist": "https://www.youtube.com/playlist?list=PLIuZ18p2ppSExD4irUMakmW3ylmhnekMP",
     "title": "Funk #49",
     "details": ""
   },
@@ -443,6 +453,7 @@
     "concert": "Red Hot Chili Peppers",
     "date": "May 25, 2025",
     "venue": "Art Boutiki",
+    "playlist": "https://www.youtube.com/playlist?list=PLIuZ18p2ppSEMF3vA-df-xfahzb6ewX7s",
     "title": "Higher Ground",
     "details": ""
   },
@@ -588,6 +599,14 @@
         const meta = document.createElement("span");
         meta.className = "concert-meta";
         meta.textContent = (v.date || "Date to be added") + " · " + (v.venue || "Venue to be added");
+        if (v.playlist) {
+          const playlistLink = document.createElement("a");
+          playlistLink.href = v.playlist;
+          playlistLink.textContent = " (Playlist)";
+          playlistLink.target = "_blank";
+          playlistLink.rel = "noopener noreferrer";
+          meta.appendChild(playlistLink);
+        }
         heading.appendChild(name);
         heading.appendChild(meta);
         main.appendChild(heading);
