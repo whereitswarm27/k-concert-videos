@@ -853,12 +853,14 @@
         meta.className = "concert-meta";
         meta.textContent = (v.date || "Date to be added") + " · " + (v.venue || "Venue to be added");
         if (v.playlist) {
+          meta.appendChild(document.createTextNode(" ("));
           const playlistLink = document.createElement("a");
           playlistLink.href = v.playlist;
-          playlistLink.textContent = " (Playlist)";
+          playlistLink.textContent = "Playlist";
           playlistLink.target = "_blank";
           playlistLink.rel = "noopener noreferrer";
           meta.appendChild(playlistLink);
+          meta.appendChild(document.createTextNode(")"));
         }
         heading.appendChild(name);
         heading.appendChild(meta);
