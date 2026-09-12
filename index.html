@@ -132,6 +132,14 @@
     border-bottom: 2px solid var(--ink);
   }
   .concert-head:first-of-type { margin-top: 0; }
+  .concert-photo {
+    display: block;
+    width: min(100%, 640px);
+    max-height: 360px;
+    margin: -4px 0 24px;
+    object-fit: cover;
+    border: 1px solid var(--line);
+  }
   .concert-name {
     display: block;
     font-size: inherit;
@@ -231,7 +239,6 @@
 
 
 
-  <p class="eyebrow">Family and friends only</p>
   <h1>KV concert videos</h1>
 
 
@@ -569,6 +576,9 @@
   const main = document.getElementById("main");
   const empty = document.getElementById("empty");
   const concertLinks = document.getElementById("concert-links");
+  const concertPhotos = {
+    "Half Past Tomorrow": "half-past-tomorrow.jpg"
+  };
 
   if (videos.length === 0) {
     empty.style.display = "block";
@@ -615,6 +625,14 @@
         heading.appendChild(name);
         heading.appendChild(meta);
         main.appendChild(heading);
+        if (concertPhotos[currentConcert]) {
+          const photo = document.createElement("img");
+          photo.className = "concert-photo";
+          photo.src = concertPhotos[currentConcert];
+          photo.alt = `${currentConcert} band photo`;
+          photo.addEventListener("error", () => photo.remove());
+          main.appendChild(photo);
+        }
       }
       currentGrid = document.createElement("div");
       currentGrid.className = "grid";
