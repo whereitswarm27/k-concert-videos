@@ -6,18 +6,20 @@
 <title>KJV</title>
 <style>
   :root {
-    --ink: #1c1b1f;
-    --paper: #f2ede4;
-    --panel: #ffffff;
-    --line: #d8d0c0;
-    --accent: #c1440e;
-    --accent-ink: #7a2c08;
+    --ink: #f4f1f8;
+    --paper: #090a0d;
+    --panel: #14161b;
+    --line: #30333b;
+    --accent: #f07845;
+    --accent-ink: #ffa275;
+    --muted: #aaa7b0;
+    --subtle: #85828b;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--paper);
-    background-image: radial-gradient(circle at 1px 1px, rgba(28,27,31,0.06) 1px, transparent 0);
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
     background-size: 22px 22px;
     color: var(--ink);
     font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
@@ -40,11 +42,20 @@
     line-height: 1.02;
     margin: 0 0 12px;
     font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  h1::after {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 2px;
+    margin: 12px auto 0;
+    background: var(--accent);
   }
   header p.sub {
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 16px;
-    color: #4a463f;
+    color: var(--muted);
     max-width: 55ch;
     margin: 0;
   }
@@ -69,7 +80,7 @@
   .concert-nav a {
     display: block;
     padding: 5px 0 5px 20px;
-    color: #6b6558;
+    color: var(--muted);
     font-size: 13px;
     font-weight: 400;
     line-height: 1.3;
@@ -125,7 +136,7 @@
     font-weight: 700;
     margin: 48px 0 18px;
     padding-bottom: 8px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line);
   }
   .concert-head:first-of-type { margin-top: 0; }
   .concert-name {
@@ -138,12 +149,13 @@
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 13px;
     font-weight: 400;
-    color: var(--ink);
+    color: var(--muted);
     margin: 0;
   }
   .concert-meta a {
-    color: inherit;
+    color: var(--accent-ink);
     text-decoration: underline;
+    text-underline-offset: 2px;
   }
   .grid {
     display: grid;
@@ -154,20 +166,22 @@
   .card {
     background: var(--panel);
     border: 1px solid var(--line);
+    border-radius: 10px;
     text-decoration: none;
     color: inherit;
     display: block;
+    overflow: hidden;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .card:hover, .card:focus-visible {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(122, 44, 8, 0.18);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(240, 120, 69, 0.22);
     outline: none;
   }
   .thumb-wrap {
     position: relative;
     aspect-ratio: 16 / 9;
-    background: #111;
+    background: var(--paper);
     overflow: hidden;
     border-bottom: 1px solid var(--line);
   }
@@ -202,7 +216,7 @@
   }
   .meta .details {
     font-size: 13px;
-    color: #6b6558;
+    color: var(--muted);
     margin: 0;
   }
   footer {
@@ -211,11 +225,11 @@
     padding: 0 24px 60px;
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 13px;
-    color: #8a8474;
+    color: var(--subtle);
   }
   .empty {
     font-family: "Helvetica Neue", Arial, sans-serif;
-    color: #6b6558;
+    color: var(--muted);
     padding: 40px 0;
   }
 </style>
@@ -702,7 +716,7 @@
 
     const play = document.createElement("div");
     play.className = "play";
-    play.innerHTML = '<svg viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="rgba(0,0,0,0.55)"></path><path d="M 45,24 27,14 27,34" fill="#f2ede4"></path></svg>';
+    play.innerHTML = '<svg viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="rgba(0,0,0,0.55)"></path><path d="M 45,24 27,14 27,34" fill="#ffffff"></path></svg>';
     thumbWrap.appendChild(play);
 
     const meta = document.createElement("div");
